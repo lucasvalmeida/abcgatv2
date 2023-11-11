@@ -137,6 +137,11 @@ void Window::standardize() {
   auto const scaling{2.0f / glm::length(max - min)};
   for (auto &vertex : m_vertices) {
     vertex.position = (vertex.position - center) * scaling;
+
+    // Rotate vertically
+    glm::mat3 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::half_pi<float>(), glm::vec3(0.0f, 0.0f, 1.0f));
+    vertex.position = rotationMatrix * vertex.position;
+
   }
 }
 
@@ -144,6 +149,9 @@ void Window::onPaint() {
   // Animate angle by 15 degrees per second
   auto const deltaTime{gsl::narrow_cast<float>(getDeltaTime())};
   m_angle = glm::wrapAngle(m_angle + glm::radians(15.0f) * deltaTime);
+
+  // Calculate rotation matrix for the whale
+  glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), m_angle, glm::vec3(0.0f, 0.0f, 1.0f));
 
   // Clear color buffer and depth buffer
   abcg::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -154,8 +162,12 @@ void Window::onPaint() {
   abcg::glBindVertexArray(m_VAO);
 
   // Update uniform variable
-  auto const angleLocation{abcg::glGetUniformLocation(m_program, "angle")};
-  abcg::glUniform1f(angleLocation, m_angle);
+  // auto const angleLocation{abcg::glGetUniformLocation(m_program, "angle")};
+  // abcg::glUniform1f(angleLocation, m_angle);
+
+  // Update uniform variable for rotation matrix
+  auto const rotationMatrixLocation{abcg::glGetUniformLocation(m_program, "rotationMatrix")};
+  abcg::glUniformMatrix4fv(rotationMatrixLocation, 1, GL_FALSE, &rotationMatrix[0][0]);
 
   // Draw triangles
   abcg::glDrawElements(GL_TRIANGLES, m_verticesToDraw, GL_UNSIGNED_INT,
