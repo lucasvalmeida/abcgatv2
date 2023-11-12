@@ -18,6 +18,9 @@ void Window::onCreate() {
   m_model.loadObj(assetsPath + "box.obj");
   m_model.setupVAO(m_program);
 
+  m_carro.loadObj(assetsPath + "modelo_carro.obj");
+  m_carro.setupVAO(m_program);
+
   // Camera at (0,0,0) and looking towards the negative z
   glm::vec3 const eye{0.0f, 0.0f, 0.0f};
   glm::vec3 const at{0.0f, 0.0f, -1.0f};
@@ -57,6 +60,12 @@ void Window::onUpdate() {
     if (star.m_position.z > 0.1f) {
       randomizeStar(star);
       star.m_position.z = -100.0f; // Back to -100
+    }
+
+    carro1.m_position.z += deltaTime * 0.009f;
+    if (carro1.m_position.z > 0.1f) {
+      randomizeStar(star);
+      carro1.m_position.z = -10.0f; // Back to -100
     }
   }
 }
@@ -108,12 +117,13 @@ void Window::onPaint() {
     m_model.render();
   }
 
+  // Desenha pista:
   pista1.m_position = glm::vec3(0.0f,-10.0f,-30.0f);
   pista1.m_rotationAxis = glm::vec3(0.2f,0.8f,0.3f);
   // Compute model matrix of the current star
   glm::mat4 matrizPista{1.0f};
   matrizPista = glm::translate(matrizPista, pista1.m_position);
-  matrizPista = glm::scale(matrizPista, glm::vec3(10.0f,2.0f,70.0f));
+  matrizPista = glm::scale(matrizPista, glm::vec3(60.0f,2.0f,240.0f));
   pista1.m_rotationAxis = glm::vec3(1.0f,0.0f,0.0f);
   angulo_pista = glm::radians(20.0f);
   matrizPista = glm::rotate(matrizPista, angulo_pista, pista1.m_rotationAxis);
@@ -122,6 +132,22 @@ void Window::onPaint() {
 
   m_model.render();
 
+// =============================================================================
+
+// Desenha carro:
+pista1.m_position = glm::vec3(0.0f,-0.0f,-90.0f);
+pista1.m_rotationAxis = glm::vec3(0.2f,0.8f,0.3f);
+// Compute model matrix of the current star
+glm::mat4 matrizCarro{1.0f};
+matrizCarro = glm::translate(matrizCarro, carro1.m_position);
+matrizCarro = glm::scale(matrizCarro, glm::vec3(0.02f,0.02f,0.02f));
+pista1.m_rotationAxis = glm::vec3(1.0f,0.0f,0.0f);
+angulo_carro = glm::radians(20.0f);
+matrizCarro = glm::rotate(matrizCarro, angulo_carro, pista1.m_rotationAxis);
+// Set uniform variable
+abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &matrizCarro[0][0]);
+
+m_carro.render();
 
 
   abcg::glUseProgram(0);
@@ -177,5 +203,6 @@ void Window::onResize(glm::ivec2 const &size) { m_viewportSize = size; }
 
 void Window::onDestroy() {
   m_model.destroy();
+  m_carro.destroy();
   abcg::glDeleteProgram(m_program);
 }
