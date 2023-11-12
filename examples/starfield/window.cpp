@@ -3,6 +3,21 @@
 #include <glm/gtc/random.hpp>
 #include <glm/gtx/fast_trigonometry.hpp>
 
+void Window::onEvent(SDL_Event const &event) {
+  // Keyboard events
+  if (event.type == SDL_KEYDOWN) {
+    if (event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_a) {
+      // Mover o carro para a esquerda
+      carro1.m_position.x -= 0.01f;
+    }
+
+    if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_d) {
+      // Mover o carro para a direita
+      carro1.m_position.x += 0.01f;
+    }
+  }
+}
+
 void Window::onCreate() {
   auto const assetsPath{abcg::Application::getAssetsPath()};
 
@@ -20,6 +35,9 @@ void Window::onCreate() {
 
   m_carro.loadObj(assetsPath + "modelo_carro.obj");
   m_carro.setupVAO(m_program);
+
+  // Inicializa posição do carro na tela
+  carro1.m_position = glm::vec3(0.0f, -0.005f, -0.005f);
 
   // Camera at (0,0,0) and looking towards the negative z
   glm::vec3 const eye{0.0f, 0.0f, 0.0f};
@@ -62,11 +80,12 @@ void Window::onUpdate() {
       star.m_position.z = -100.0f; // Back to -100
     }
 
-    carro1.m_position.z += deltaTime * 0.009f;
-    if (carro1.m_position.z > 0.1f) {
-      randomizeStar(star);
-      carro1.m_position.z = -10.0f; // Back to -100
-    }
+    // carro1.m_position.z += deltaTime * 0.009f;
+    // carro1.m_position.z += 0.009f;
+    // if (carro1.m_position.z > 0.1f) {
+    //   randomizeStar(star);
+    //   carro1.m_position.z = -10.0f; // Back to -100
+    // }
   }
 }
 

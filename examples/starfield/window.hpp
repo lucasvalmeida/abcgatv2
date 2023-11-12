@@ -8,6 +8,7 @@
 
 class Window : public abcg::OpenGLWindow {
 protected:
+  void onEvent(SDL_Event const &event) override;
   void onCreate() override;
   void onUpdate() override;
   void onPaint() override;
@@ -55,7 +56,7 @@ private:
 
   glm::mat4 m_viewMatrix{1.0f};
   glm::mat4 m_projMatrix{1.0f};
-  float m_FOV{30.0f};
+  float m_FOV{150.0f};
 
   GLuint m_program{};
 
