@@ -108,16 +108,17 @@ void Window::onPaint() {
     m_model.render();
   }
 
-  carro1.m_position = glm::vec3(0.0f,0.0f,-20.0f);
-  carro1.m_rotationAxis = glm::sphericalRand(1.0f);
+  pista1.m_position = glm::vec3(0.0f,-10.0f,-30.0f);
+  pista1.m_rotationAxis = glm::vec3(0.2f,0.8f,0.3f);
   // Compute model matrix of the current star
-  glm::mat4 matrizCarro{1.0f};
-  matrizCarro = glm::translate(matrizCarro, carro1.m_position);
-  matrizCarro = glm::scale(matrizCarro, glm::vec3(0.8f));
-//  matrizCarro = glm::rotate(matrizCarro, m_angle, carro1.m_rotationAxis);
-
+  glm::mat4 matrizPista{1.0f};
+  matrizPista = glm::translate(matrizPista, pista1.m_position);
+  matrizPista = glm::scale(matrizPista, glm::vec3(10.0f,2.0f,70.0f));
+  pista1.m_rotationAxis = glm::vec3(1.0f,0.0f,0.0f);
+  angulo_pista = glm::radians(20.0f);
+  matrizPista = glm::rotate(matrizPista, angulo_pista, pista1.m_rotationAxis);
   // Set uniform variable
-  abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &matrizCarro[0][0]);
+  abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &matrizPista[0][0]);
 
   m_model.render();
 

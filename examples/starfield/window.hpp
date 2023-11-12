@@ -22,6 +22,7 @@ private:
 
   Model m_model;
   Model m_carro;
+  Model m_pista;
 
   struct Star {
     glm::vec3 m_position{};
@@ -33,6 +34,13 @@ private:
     glm::vec3 m_rotationAxis{};
   };
 
+  struct Pista {
+    glm::vec3 m_position{};
+    glm::vec3 m_rotationAxis{};
+  };
+
+  Pista pista1;
+
   Carro carro1;
   Carro carro2;
   Carro carro3;
@@ -40,6 +48,10 @@ private:
   std::array<Star, 500> m_stars;
 
   float m_angle{};
+  float angulo_carro{};
+
+  float angulo_pista{};
+
 
   glm::mat4 m_viewMatrix{1.0f};
   glm::mat4 m_projMatrix{1.0f};
