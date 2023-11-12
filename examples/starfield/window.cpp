@@ -8,12 +8,12 @@ void Window::onEvent(SDL_Event const &event) {
   if (event.type == SDL_KEYDOWN) {
     if (event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_a) {
       // Mover o carro para a esquerda
-      carro1.m_position.x -= 0.01f;
+      carro0.m_position.x -= 0.01f;
     }
 
     if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_d) {
       // Mover o carro para a direita
-      carro1.m_position.x += 0.01f;
+      carro0.m_position.x += 0.01f;
     }
   }
 }
@@ -37,7 +37,10 @@ void Window::onCreate() {
   m_carro.setupVAO(m_program);
 
   // Inicializa posição do carro na tela
-  carro1.m_position = glm::vec3(0.0f, -0.005f, -0.005f);
+  carro0.m_position = glm::vec3(0.0f, -0.02f, -0.001f);
+  // carro1.m_position = glm::vec3(-0.05f, -0.02f, -0.005f);
+  carro1.m_position = glm::vec3(glm::linearRand(-0.05f, 0.05f), -0.02f, -0.005f);
+
 
   // Camera at (0,0,0) and looking towards the negative z
   glm::vec3 const eye{0.0f, 0.0f, 0.0f};
@@ -53,11 +56,24 @@ void Window::onCreate() {
 
 void Window::randomizeStar(Star &star) {
   // Random position: x and y in [-20, 20), z in [-100, 0)
-  std::uniform_real_distribution<float> distPosXY(-20.0f, 20.0f);
+  std::uniform_real_distribution<float> distPosY(-20.0f, 40.0f);  
   std::uniform_real_distribution<float> distPosZ(-100.0f, 0.0f);
+
+  // Randomly select one of the two sides
+  std::uniform_int_distribution<int> distPosSide(0, 1);
+  int sorteia_lado = distPosSide(m_randomEngine);
+
+  std::uniform_real_distribution<float> distPosX;
+  
+  if (sorteia_lado == 0) {
+    distPosX = std::uniform_real_distribution<float>(25.0f, 40.0f);
+  } else {
+    distPosX = std::uniform_real_distribution<float>(-40.0f, -25.0f);
+  } 
+
   star.m_position =
-      glm::vec3(distPosXY(m_randomEngine), distPosXY(m_randomEngine),
-                distPosZ(m_randomEngine));
+        glm::vec3(distPosX(m_randomEngine), distPosY(m_randomEngine),
+                  distPosZ(m_randomEngine));
 
   // Random rotation axis
   star.m_rotationAxis = glm::sphericalRand(1.0f);
@@ -80,12 +96,11 @@ void Window::onUpdate() {
       star.m_position.z = -100.0f; // Back to -100
     }
 
-    // carro1.m_position.z += deltaTime * 0.009f;
-    // carro1.m_position.z += 0.009f;
-    // if (carro1.m_position.z > 0.1f) {
-    //   randomizeStar(star);
-    //   carro1.m_position.z = -10.0f; // Back to -100
-    // }
+    carro1.m_position.z += deltaTime * 0.001f * 0.5f;
+    if (carro1.m_position.z > 0.01f) {
+      randomizeStar(star);
+      carro1.m_position.z = -4.0f; // Back to -100
+    }
   }
 }
 
@@ -109,20 +124,6 @@ void Window::onPaint() {
   abcg::glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f); // White
 
   // Render each star
-//  for (auto &star : m_stars) {
-    // Compute model matrix of the current star
-//    glm::mat4 modelMatrix{1.0f};
-//    modelMatrix = glm::translate(modelMatrix, star.m_position);
-//    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.2f));
-//    modelMatrix = glm::rotate(modelMatrix, m_angle, star.m_rotationAxis);
-
-    // Set uniform variable
-//    abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &modelMatrix[0][0]);
-
-//    m_model.render();
-//  }
-
-  // Render each star
   for (auto &star : m_stars) {
     // Compute model matrix of the current star
     glm::mat4 modelMatrix{1.0f};
@@ -139,6 +140,7 @@ void Window::onPaint() {
   // Desenha pista:
   pista1.m_position = glm::vec3(0.0f,-10.0f,-30.0f);
   pista1.m_rotationAxis = glm::vec3(0.2f,0.8f,0.3f);
+
   // Compute model matrix of the current star
   glm::mat4 matrizPista{1.0f};
   matrizPista = glm::translate(matrizPista, pista1.m_position);
@@ -146,6 +148,7 @@ void Window::onPaint() {
   pista1.m_rotationAxis = glm::vec3(1.0f,0.0f,0.0f);
   angulo_pista = glm::radians(20.0f);
   matrizPista = glm::rotate(matrizPista, angulo_pista, pista1.m_rotationAxis);
+
   // Set uniform variable
   abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &matrizPista[0][0]);
 
@@ -153,21 +156,40 @@ void Window::onPaint() {
 
 // =============================================================================
 
-// Desenha carro:
-pista1.m_position = glm::vec3(0.0f,-0.0f,-90.0f);
-pista1.m_rotationAxis = glm::vec3(0.2f,0.8f,0.3f);
-// Compute model matrix of the current star
-glm::mat4 matrizCarro{1.0f};
-matrizCarro = glm::translate(matrizCarro, carro1.m_position);
-matrizCarro = glm::scale(matrizCarro, glm::vec3(0.02f,0.02f,0.02f));
-pista1.m_rotationAxis = glm::vec3(1.0f,0.0f,0.0f);
-angulo_carro = glm::radians(20.0f);
-matrizCarro = glm::rotate(matrizCarro, angulo_carro, pista1.m_rotationAxis);
-// Set uniform variable
-abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &matrizCarro[0][0]);
+  // Desenha carro0:
+  pista0.m_position = glm::vec3(0.0f,-0.0f,-90.0f);
+  pista0.m_rotationAxis = glm::vec3(0.2f,0.8f,0.3f);
 
-m_carro.render();
+  glm::mat4 matrizCarro0{1.0f};
+  matrizCarro0 = glm::translate(matrizCarro0, carro0.m_position);
+  matrizCarro0 = glm::scale(matrizCarro0, glm::vec3(0.02f,0.02f,0.02f));
 
+  pista0.m_rotationAxis = glm::vec3(1.0f,0.0f,0.0f);
+  angulo_carro0 = glm::radians(0.0f);
+  matrizCarro0 = glm::rotate(matrizCarro0, angulo_carro0, pista0.m_rotationAxis);
+  // Set uniform variable
+  abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &matrizCarro0[0][0]);
+
+  m_carro.render();
+
+// =============================================================================
+
+  // Desenha carro1:
+  pista1.m_position = glm::vec3(0.0f,-0.0f,-90.0f);
+  pista1.m_rotationAxis = glm::vec3(0.2f,0.8f,0.3f);
+
+  glm::mat4 matrizCarro1{1.0f};
+  matrizCarro1 = glm::translate(matrizCarro1, carro1.m_position);
+  matrizCarro1 = glm::scale(matrizCarro1, glm::vec3(0.02f,0.02f,0.02f));
+
+  pista1.m_rotationAxis = glm::vec3(1.0f,0.0f,0.0f);
+  angulo_carro1 = glm::radians(20.0f);
+  matrizCarro1 = glm::rotate(matrizCarro1, angulo_carro1, pista1.m_rotationAxis);
+
+  // Set uniform variable
+  abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &matrizCarro1[0][0]);
+
+  m_carro.render();
 
   abcg::glUseProgram(0);
 }

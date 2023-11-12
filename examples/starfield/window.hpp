@@ -40,17 +40,17 @@ private:
     glm::vec3 m_rotationAxis{};
   };
 
+  Pista pista0;
   Pista pista1;
 
+  Carro carro0;
   Carro carro1;
-  Carro carro2;
-  Carro carro3;
 
   std::array<Star, 500> m_stars;
 
   float m_angle{};
-  float angulo_carro{};
-
+  float angulo_carro0{};
+  float angulo_carro1{};
   float angulo_pista{};
 
 
