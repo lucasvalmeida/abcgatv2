@@ -1,10 +1,11 @@
 # Infinity Run!
 
-Atividade 2: Protótipo de um jogo de corrida infinita que iremos apresentar na atividade final.
+Atividade 2: 
+Protótipo de um jogo de corrida infinita que iremos apresentar na atividade final.
 
 ## Autores
 
-- Lucas Venâncio de Almeida
+- Lucas Venâncio de Almeida    RA: 21058312
 - Lucas...
 
 ## Descrição do protótipo
