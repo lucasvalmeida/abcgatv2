@@ -1,113 +1,145 @@
-# ABCg
+# Infinity Run!
 
-![build workflow](https://github.com/hbatagelo/abcg/actions/workflows/build.yml/badge.svg)
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/hbatagelo/abcg)](https://github.com/hbatagelo/abcg/releases/latest)
+Atividade 2: Protótipo de um jogo de corrida infinita que iremos apresentar na atividade final.
 
-Development framework accompanying the course [MCTA008-17 Computer Graphics](http://professor.ufabc.edu.br/~harlen.batagelo/cg/) at [UFABC](https://www.ufabc.edu.br/).
+## Autores
 
-[Documentation](https://hbatagelo.github.io/abcg/abcg/doc/html/) | [Release notes](CHANGELOG.md)
+- Lucas Venâncio de Almeida
+- Lucas...
 
-ABCg is a lightweight C++ framework that simplifies the development of 3D graphics applications based on [OpenGL](https://www.opengl.org), [OpenGL ES](https://www.khronos.org), [WebGL](https://www.khronos.org/webgl/), and [Vulkan](https://www.vulkan.org). It is designed for the tutorials and assignments of the course "MCTA008-17 Computer Graphics" taught at Federal University of ABC (UFABC).
+## Descrição do protótipo
 
-***
+O protótipo é de um jogo de corrida infinita.
 
-## Main features
+## Principais implementações
 
-*   Supported platforms: Linux, macOS, Windows, WebAssembly.
-*   Supported backends: OpenGL 3.3+, OpenGL ES 3.0+, WebGL 2.0 (via Emscripten), Vulkan 1.3.
-*   Applications that use the common subset of functions between OpenGL 3.3 and OpenGL ES 3.0 can be built for WebGL 2.0 using the same source code.
-*   OpenGL functions can be qualified with the `abcg::` namespace to enable throwing exceptions with descriptive GL error messages that include the source code location.
-*   Includes helper classes and functions for loading textures (using [SDL\_image](https://www.libsdl.org/projects/SDL_image/)), loading OBJ 3D models (using [tinyobjloader](https://github.com/tinyobjloader/tinyobjloader)), and compiling GLSL shaders to SPIR-V with [glslang](https://github.com/KhronosGroup/glslang).
+Utilizamos como base o projeto Starfiel apresentado em aula.
 
-***
+Alterações feitas no Window::onCreate():
+```cpp
+void Window::onCreate() {
+// restante do código
 
-## Requirements
+    // Novo objeto importado
+    m_carro.loadObj(assetsPath + "modelo_carro.obj");
+    m_carro.setupVAO(m_program);
 
-The following minimum requirements are shared among all platforms:
+    // Definindo posições iniciais dos objetos
+    carro0.m_position = glm::vec3(0.0f, -0.02f, -0.001f);
+    carro1.m_position = glm::vec3(glm::linearRand(-0.05f, 0.05f), -0.02f, -0.005f);
 
-*   [CMake](https://cmake.org/) 3.21.
-*   A C++ compiler with at least partial support for C++20 (tested with GCC 12, Clang 16, MSVC 17, and emcc 3.1.42).
-*   A system with support for OpenGL 3.3 (OpenGL backend) or Vulkan 1.3 (Vulkan backend). Conformant software rasterizers such as Mesa's [Gallium llvmpipe](https://docs.mesa3d.org/drivers/llvmpipe.html) and lavapipe (post Jun 2022) are supported. Mesa's [D3D12](https://devblogs.microsoft.com/directx/directx-heart-linux/) backend on [WSL 2.0](https://docs.microsoft.com/en-us/windows/wsl/install) is supported as well.
+// restante do código
+}
+```
 
-For WebAssembly:
+Alterações feitas no Window::randomizeStar():
+```cpp
+void Window::randomizeStar(Star &star) {
+// restante do código
 
-*   [Emscripten](https://emscripten.org/).
-*   A browser with support for WebGL 2.0.
+    // Sorteia um número (0,1)
+    std::uniform_int_distribution<int> distPosSide(0, 1);
+    int sorteia_lado = distPosSide(m_randomEngine);
+    std::uniform_real_distribution<float> distPosX;
 
-For building desktop applications:
+    // Define o lado da pista que o cubo irá aparecer
+    if (sorteia_lado == 0) {
+        distPosX = std::uniform_real_distribution<float>(25.0f, 40.0f);
+      } else {
+        distPosX = std::uniform_real_distribution<float>(-40.0f, -25.0f);
+      } 
 
-*   [SDL](https://www.libsdl.org/) 2.0.
-*   [SDL\_image](https://www.libsdl.org/projects/SDL_image/) 2.0.
-*   [GLEW](http://glew.sourceforge.net/) 2.2.0 (required for OpenGL-based applications).
-*   [Vulkan](https://www.lunarg.com/vulkan-sdk/) 1.3 (required for Vulkan-based applications).
+    // Passa todas posições do cubo
+      star.m_position =
+            glm::vec3(distPosX(m_randomEngine), distPosY(m_randomEngine),
+                      distPosZ(m_randomEngine));
 
-Desktop dependencies can be resolved automatically with [Conan](https://conan.io/), but it is disabled by default. To use Conan, install Conan 1.47 or a later 1.\* version (ABCg is not compatible with Conan 2.0!) and then configure CMake with `-DENABLE_CONAN=ON`.
+// restante do código
+}
+```
 
-The default renderer backend is OpenGL (CMake option `GRAPHICS_API=OpenGL`). To use the Vulkan backend, configure CMake with `-DGRAPHICS_API=Vulkan`.
+Alterações feitas no Window::onUpdate():
+```cpp
+void Window::onUpdate() {
+// restante do código
 
-***
+    // Define a direção e velocidade do carro no eixo Z
+    carro1.m_position.z += deltaTime * 0.001f * 0.5f;
+        if (carro1.m_position.z > 0.01f) {
+          randomizeStar(star);
+          carro1.m_position.z = -4.0f; // Back to -100
+        }
 
-## Installation and usage
+// restante do código
+}
+```
 
-Start by cloning the repository:
+Alterações feitas no Window::onPaint():
+```cpp
+void Window::onPaint() {
+// restante do código
 
-    # Get abcg repo
-    git clone https://github.com/hbatagelo/abcg.git
+    // Desenha pista:
+    pista1.m_position = glm::vec3(0.0f,-10.0f,-30.0f);
+    pista1.m_rotationAxis = glm::vec3(0.2f,0.8f,0.3f);
+    
+    glm::mat4 matrizPista{1.0f};
+    matrizPista = glm::translate(matrizPista, pista1.m_position);
+    matrizPista = glm::scale(matrizPista, glm::vec3(60.0f,2.0f,240.0f));
 
-    # Enter the directory
-    cd abcg
+    pista1.m_rotationAxis = glm::vec3(1.0f,0.0f,0.0f);
+    angulo_pista = glm::radians(20.0f);
+    matrizPista = glm::rotate(matrizPista, angulo_pista, pista1.m_rotationAxis);
 
-Follow the instructions below to build the "Hello, World!" sample located in `abcg/examples/helloworld`.
+    abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &matrizPista[0][0]);
+    m_model.render();
 
-### Windows
+    // Desenha carro0:
+    glm::mat4 matrizCarro0{1.0f};
+    matrizCarro0 = glm::translate(matrizCarro0, carro0.m_position);
+    matrizCarro0 = glm::scale(matrizCarro0, glm::vec3(0.02f,0.02f,0.02f));
 
-*   Run `build-vs.bat` for building with the Visual Studio 2022 toolchain.
-*   Run `build.bat` for building with GCC (MinGW-w64).
+    angulo_carro0 = glm::radians(0.0f);
+    matrizCarro0 = glm::rotate(matrizCarro0, angulo_carro0, pista0.m_rotationAxis);
 
-`build-vs.bat` and `build.bat` accept two optional arguments: (1) the build type, which is `Release` by default, and (2) an extra CMake option. For example, for a `Debug` build with `-DENABLE_CONAN=ON` using VS 2022, run
+    abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &matrizCarro0[0][0]);
+    m_carro.render();
 
-    build-vs.bat Debug -DENABLE_CONAN=ON
+    // Desenha carro1:
+    glm::mat4 matrizCarro1{1.0f};
+    matrizCarro1 = glm::translate(matrizCarro1, carro1.m_position);
+    matrizCarro1 = glm::scale(matrizCarro1, glm::vec3(0.02f,0.02f,0.02f));
 
-### Linux and macOS
+    angulo_carro1 = glm::radians(20.0f);
+    matrizCarro1 = glm::rotate(matrizCarro1, angulo_carro1, pista1.m_rotationAxis);
 
-Run `./build.sh`.
+    abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &matrizCarro1[0][0]);
+    m_carro.render();
 
-The script accepts two optional arguments: (1) the build type, which is `Release` by default, and (2) an extra CMake option. For example, for a `Debug` build with `-DENABLE_CONAN=ON`, run
+// restante do código
+}
+```
 
-    ./build.sh Debug -DENABLE_CONAN=ON
+Implementações feitas no Window::onEvent():
+```cpp
+void Window::onEvent(SDL_Event const &event) {
+// restante do código
 
-### WebAssembly
+    // Captura entradas do teclado para mover o carro 0 para direita e esquerda
+    if (event.type == SDL_KEYDOWN) {
+        if (event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_a) {
+            carro0.m_position.x -= 0.01f;
+        }
+        if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_d) {
+            carro0.m_position.x += 0.01f;
+        }
+    }
 
-1.  Run `build-wasm.bat` (Windows) or `./build-wasm.sh` (Linux/macOS).
-2.  Run `runweb.bat` (Windows) or `./runweb.sh` (Linux/macOS) for setting up a local web server.
-3.  Open <http://localhost:8080/helloworld.html>.
+// restante do código
+}
+```
 
-***
 
-## Docker setup
 
-ABCg can be built in a [Docker](https://www.docker.com/) container. The Dockerfile provided is based on Ubuntu 22.04 and includes Emscripten.
 
-1.  Create the Docker image (`abcg`):
 
-        sudo docker build -t abcg .
-
-2.  Create the container (`abcg_container`):
-
-        sudo docker create -it \
-          -p 8080:8080 \
-          -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
-          -e DISPLAY \
-          --name abcg_container abcg
-
-3.  Start the container:
-
-        sudo docker start -ai abcg_container
-
-    On NVIDIA GPUs, install the [NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker) to allow the container to use the host's NVIDIA driver and X server. Expose the X server with `sudo xhost +local:root` before starting the container.
-
-***
-
-## License
-
-ABCg is licensed under the MIT License. See [LICENSE](https://github.com/hbatagelo/abcg/blob/main/LICENSE) for more information.
