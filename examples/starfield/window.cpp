@@ -81,6 +81,20 @@ void Window::onPaint() {
   abcg::glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f); // White
 
   // Render each star
+//  for (auto &star : m_stars) {
+    // Compute model matrix of the current star
+//    glm::mat4 modelMatrix{1.0f};
+//    modelMatrix = glm::translate(modelMatrix, star.m_position);
+//    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.2f));
+//    modelMatrix = glm::rotate(modelMatrix, m_angle, star.m_rotationAxis);
+
+    // Set uniform variable
+//    abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &modelMatrix[0][0]);
+
+//    m_model.render();
+//  }
+
+  // Render each star
   for (auto &star : m_stars) {
     // Compute model matrix of the current star
     glm::mat4 modelMatrix{1.0f};
@@ -93,6 +107,21 @@ void Window::onPaint() {
 
     m_model.render();
   }
+
+  carro1.m_position = glm::vec3(0.0f,0.0f,-20.0f);
+  carro1.m_rotationAxis = glm::sphericalRand(1.0f);
+  // Compute model matrix of the current star
+  glm::mat4 matrizCarro{1.0f};
+  matrizCarro = glm::translate(matrizCarro, carro1.m_position);
+  matrizCarro = glm::scale(matrizCarro, glm::vec3(0.8f));
+//  matrizCarro = glm::rotate(matrizCarro, m_angle, carro1.m_rotationAxis);
+
+  // Set uniform variable
+  abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &matrizCarro[0][0]);
+
+  m_model.render();
+
+
 
   abcg::glUseProgram(0);
 }

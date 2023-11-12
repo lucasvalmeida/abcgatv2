@@ -21,11 +21,21 @@ private:
   glm::ivec2 m_viewportSize{};
 
   Model m_model;
+  Model m_carro;
 
   struct Star {
     glm::vec3 m_position{};
     glm::vec3 m_rotationAxis{};
   };
+
+  struct Carro {
+    glm::vec3 m_position{};
+    glm::vec3 m_rotationAxis{};
+  };
+
+  Carro carro1;
+  Carro carro2;
+  Carro carro3;
 
   std::array<Star, 500> m_stars;
 
