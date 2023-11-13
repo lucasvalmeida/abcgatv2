@@ -6,7 +6,7 @@ Protótipo de um jogo de corrida infinita que iremos apresentar na atividade fin
 ## Autores
 
 - Lucas Venâncio de Almeida    RA: 21058312
-- Lucas...
+- Lucas Guerra Silvestre       RA: 11201721549
 
 ## Descrição do protótipo
 
@@ -14,7 +14,7 @@ O protótipo é de um jogo de corrida infinita.
 
 ## Principais implementações
 
-Utilizamos como base o projeto Starfiel apresentado em aula.
+Utilizamos como base o projeto Starfield apresentado em aula.
 
 Alterações feitas no Window::onCreate():
 ```cpp
